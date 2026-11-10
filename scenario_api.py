@@ -18,8 +18,6 @@ SCENARIOS = {
                "hidden_cause": "moved; postal code differs from notice"},
     "IN-01d": {"opening_line": "I entered my email address, phone number and so on, but I can't go any further.",
                "hidden_cause": "phone number typed with hyphens"},
-    "IN-01e": {"opening_line": "I want to register as a member, but I don't have my shareholder number with me.",
-               "hidden_cause": "shareholder number on notice letter at home"},
 }
 
 @app.get("/")
