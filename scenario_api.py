@@ -68,7 +68,24 @@ def assign():
         elif call_id not in assigned:
             assigned[call_id] = random.choice(list(SCENARIOS))
         sid = assigned[call_id]
-    return jsonify({"call_id": call_id, "scenario_id": sid, **SCENARIOS[sid]})
+    sc = SCENARIOS[sid]
+    if str(body.get("full") or request.args.get("full") or "") in ("1", "true"):
+        return jsonify({"call_id": call_id, "scenario_id": sid, **sc})
+    # Default: a short response that small voice models follow reliably.
+    c = sc.get("caller", {})
+    details = (
+        f"Name: {c.get('name', '')}. Shareholder number: {c.get('shareholder_number', '').rstrip('.')}. "
+        f"Registered postal code: {c.get('registered_postal_code', '')}. "
+        f"Email: {c.get('email', '')}. Phone: {c.get('phone', '')}. "
+        f"Device: {c.get('device', '')}"
+    )
+    return jsonify({
+        "call_id": call_id,
+        "scenario_id": sid,
+        "opening_line": sc["opening_line"],
+        "brief": sc.get("brief", ""),
+        "my_details": details,
+    })
 
 
 @app.post("/scenario/reset")
