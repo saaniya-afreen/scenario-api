@@ -6,3 +6,6 @@ echo "2. assign:";   curl -s -X POST "$BASE/scenario/assign" -H "Content-Type: a
 echo "3. same call:"; curl -s -X POST "$BASE/scenario/assign" -H "Content-Type: application/json" -d '{"call_id":"test-001"}'; echo
 echo "4. no call id:"; curl -s -X POST "$BASE/scenario/assign" -H "Content-Type: application/json" -d '{}'; echo
 echo "5. no body:";    curl -s -X POST "$BASE/scenario/assign"; echo
+echo "6. placeholder id (should get auto- id, different each time):"
+curl -s -X POST "$BASE/scenario/assign" -H "Content-Type: application/json" -d '{"call_id":"<call ID variable from the platform>"}'; echo
+curl -s -X POST "$BASE/scenario/assign" -H "Content-Type: application/json" -d '{"call_id":"{{call_id}}"}'; echo

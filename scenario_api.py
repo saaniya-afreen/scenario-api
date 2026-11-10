@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 _lock = threading.Lock()
 assigned = {}  # call_id -> scenario_id (same call, same scenario)
+PLACEHOLDER_MARKS = ("<", ">", "{{", "}}", "${")
 
 SCENARIOS = {
     "IN-01a": {"opening_line": "I want to register as a member, but I don't know how.",
@@ -31,6 +32,10 @@ def health():
 def assign():
     body = request.get_json(silent=True) or {}
     call_id = str(body.get("call_id") or request.args.get("call_id") or "").strip()
+    if any(m in call_id for m in PLACEHOLDER_MARKS):
+        # Unfilled template text (e.g. "<call id>" or "{{call_id}}") is the same
+        # on every call, so it would lock every call to one scenario. Ignore it.
+        call_id = ""
     if not call_id:
         # No call ID from the platform: treat this request as a new call.
         call_id = "auto-" + uuid.uuid4().hex[:12]
