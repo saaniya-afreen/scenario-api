@@ -66,7 +66,9 @@ def assign():
         if forced:
             assigned[call_id] = forced
         elif call_id not in assigned:
-            assigned[call_id] = random.choice(list(SCENARIOS))
+            ids = list(SCENARIOS)
+            assigned[call_id] = random.choices(
+                ids, weights=[SCENARIOS[i].get("weight", 1) for i in ids])[0]
         sid = assigned[call_id]
     sc = SCENARIOS[sid]
     if str(body.get("full") or request.args.get("full") or "") in ("1", "true"):
