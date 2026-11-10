@@ -89,7 +89,8 @@ def assign():
     c = sc.get("caller", {})
     details = (
         f"Name: {c.get('name', '')}. Shareholder number: {c.get('shareholder_number', '').rstrip('.')}. "
-        f"Registered postal code: {c.get('registered_postal_code', '')}. "
+        f"Date of birth and gender: {c.get('date_of_birth', '')}, {c.get('gender', '')}. "
+        f"Registered address: {c.get('registered_address', c.get('registered_postal_code', ''))}. "
         f"Email: {c.get('email', '')}. Phone: {c.get('phone', '')}. "
         f"Device: {c.get('device', '')}"
     )
