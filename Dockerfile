@@ -2,5 +2,5 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY scenario_api.py .
+COPY scenario_api.py scenarios.json ./
 CMD ["sh", "-c", "gunicorn -w 1 -b 0.0.0.0:${PORT:-8000} scenario_api:app"]

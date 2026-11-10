@@ -1,0 +1,86 @@
+{
+  "_readme": "Each scenario is merged on top of 'defaults' (scenario values win). To add a scenario, copy one entry, give it a new id, and edit the fields. The agent prompt never needs to change.",
+
+  "defaults": {
+    "caller": {
+      "name": "Aiko Ookimura (surname spelled O-O-K-I-M-U-R-A)",
+      "role": "The shareholder themselves, calling about their own registration.",
+      "device": "Smartphone. Opened the website by scanning the QR code on the notice letter.",
+      "has_with_them": "The notice letter from the company.",
+      "shareholder_number": "12345678 (read one digit at a time). Typed as digits only, no hyphens.",
+      "registered_postal_code": "330-0834 (printed on the notice letter)",
+      "email": "a.k.ookimu@gmail.com (spell as: a, dot, k, dot, o-o-k-i-m-u, at gmail dot com)",
+      "phone": "090-1234-5678 (read as: 0-9-0, 1-2-3-4, 5-6-7-8)"
+    },
+    "screens": [
+      "Top page: a 'New member registration' button.",
+      "Screen 1: boxes for 'Shareholder number' and 'Postal code', and a 'Next' button.",
+      "Screen 2: boxes for 'Email address', 'Phone number' and a password, and a 'Next' button.",
+      "Confirmation screen: shows what you entered, with a 'Register' button.",
+      "Completion screen: 'Registration complete.'"
+    ],
+    "failure_looks_like": "You press Next and nothing happens. You stay on the same screen. There is no error message.",
+    "wrong_fix_reply": "It still won't go to the next screen.",
+    "answers": [
+      {"when": "Is there an error message?", "say": "No, nothing. It just stays on the same screen."},
+      {"when": "How did you enter the shareholder number? / Any hyphens in it?", "say": "Just the numbers, no hyphens."},
+      {"when": "How did you get to the website?", "say": "I scanned the QR code on the letter."}
+    ]
+  },
+
+  "scenarios": {
+    "IN-01a": {
+      "title": "Doesn't know how to register",
+      "opening_line": "I want to register as a member, but I don't know how.",
+      "situation": "You scanned the QR code on the notice letter and are on the top page. You don't know what to do next.",
+      "current_screen": "Top page",
+      "hidden_cause": "none",
+      "reveal_when": [],
+      "reveal_line": "",
+      "correct_fix": "Any reasonable registration step the operator gives works first time. Follow each step and describe the next screen until 'Registration complete.'",
+      "after_fix": "Describe the next screen in the list each time."
+    },
+    "IN-01b": {
+      "title": "Postal code typed with a hyphen",
+      "opening_line": "I entered my shareholder number and postal code, but I can't proceed.",
+      "situation": "You entered your shareholder number and postal code on Screen 1 and pressed Next. Nothing happens.",
+      "current_screen": "Screen 1",
+      "hidden_cause": "You typed the postal code with a hyphen, as 330-0834.",
+      "reveal_when": ["How did you enter the postal code?", "Is there a hyphen in the postal code?", "Can you read the postal code you typed?"],
+      "reveal_line": "I typed 3-3-0, hyphen, 0-8-3-4.",
+      "answers": [
+        {"when": "Have you moved? / Is it your registered address?", "say": "No, I haven't moved. It's the address on the letter."}
+      ],
+      "correct_fix": "Type the postal code without the hyphen (3300834).",
+      "after_fix": "It went through. Now I see boxes for my email address, phone number and a password."
+    },
+    "IN-01c": {
+      "title": "Moved address",
+      "opening_line": "I entered my shareholder number and postal code, but I can't proceed.",
+      "situation": "You entered your shareholder number and a postal code on Screen 1 and pressed Next. Nothing happens.",
+      "current_screen": "Screen 1",
+      "hidden_cause": "You have moved. You entered your NEW postal code, 1600023. The registered address is the OLD one, 330-0834, printed on the notice letter.",
+      "reveal_when": ["Have you moved?", "Has your address changed?", "Is that the postal code on the notice letter?", "Is that your registered address?"],
+      "reveal_line": "I've moved, but is it okay to register with my old address?",
+      "answers": [
+        {"when": "How did you enter the postal code? / Is there a hyphen?", "say": "Just the numbers, no hyphen."},
+        {"when": "Re-enter the postal code / try without a hyphen / try again", "say": "Okay, one moment... It still won't go to the next screen."},
+        {"when": "What postal code did you enter? / Read it to me", "say": "1-6-0, 0-0-2-3."}
+      ],
+      "correct_fix": "Enter the postal code of the registered (old) address on the notice letter: 3300834.",
+      "after_fix": "It went through. Now I see boxes for my email address, phone number and a password."
+    },
+    "IN-01d": {
+      "title": "Phone number typed with hyphens",
+      "opening_line": "I entered my email address, phone number and so on, but I can't go any further.",
+      "situation": "Screen 1 worked. On Screen 2 you entered your email address, phone number and a password, and pressed Next. Nothing happens.",
+      "current_screen": "Screen 2",
+      "hidden_cause": "You typed the phone number with hyphens, as 090-1234-5678.",
+      "reveal_when": ["How did you enter the phone number?", "Can you check the phone number format?", "Are there hyphens in the phone number?"],
+      "reveal_line": "Oh, I put hyphens in it. 0-9-0, hyphen, 1-2-3-4, hyphen, 5-6-7-8.",
+      "answers": [],
+      "correct_fix": "Type the phone number as numbers only (09012345678).",
+      "after_fix": "It went through. Now I see a confirmation screen with a Register button."
+    }
+  }
+}
