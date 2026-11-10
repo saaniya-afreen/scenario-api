@@ -1,6 +1,7 @@
 import os
 import random
 import threading
+import uuid
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -25,13 +26,14 @@ SCENARIOS = {
 def health():
     return {"status": "ok", "scenarios": list(SCENARIOS)}
 
-@app.post("/scenario/assign")
-@app.post("/scenario/assign/")
+@app.route("/scenario/assign", methods=["GET", "POST"])
+@app.route("/scenario/assign/", methods=["GET", "POST"])
 def assign():
     body = request.get_json(silent=True) or {}
-    call_id = str(body.get("call_id", "")).strip()
+    call_id = str(body.get("call_id") or request.args.get("call_id") or "").strip()
     if not call_id:
-        return jsonify({"error": "call_id is required"}), 400
+        # No call ID from the platform: treat this request as a new call.
+        call_id = "auto-" + uuid.uuid4().hex[:12]
     with _lock:
         if call_id not in assigned:
             assigned[call_id] = random.choice(list(SCENARIOS))
