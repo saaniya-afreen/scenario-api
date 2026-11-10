@@ -36,12 +36,16 @@ def _load_scenarios():
 
 
 SCENARIOS = _load_scenarios()
+with open(_DATA_FILE, encoding="utf-8") as _f:
+    ROTATION = [s for s in json.load(_f).get("rotation", []) if s in SCENARIOS]
+_next = 0  # position in ROTATION for the next new call
 
 
 @app.get("/")
 @app.get("/health")
 def health():
-    return {"status": "ok", "scenarios": list(SCENARIOS)}
+    return {"status": "ok", "scenarios": list(SCENARIOS), "rotation": ROTATION,
+            "next": ROTATION[_next % len(ROTATION)] if ROTATION else None}
 
 
 @app.route("/scenario/assign", methods=["GET", "POST"])
@@ -66,9 +70,17 @@ def assign():
         if forced:
             assigned[call_id] = forced
         elif call_id not in assigned:
-            ids = list(SCENARIOS)
-            assigned[call_id] = random.choices(
-                ids, weights=[SCENARIOS[i].get("weight", 1) for i in ids])[0]
+            mode = str(body.get("mode") or request.args.get("mode") or "")
+            if ROTATION and mode != "random":
+                # Each new call gets the next scenario in the rotation, so
+                # consecutive calls always start with a different subcase.
+                global _next
+                assigned[call_id] = ROTATION[_next % len(ROTATION)]
+                _next += 1
+            else:
+                ids = list(SCENARIOS)
+                assigned[call_id] = random.choices(
+                    ids, weights=[SCENARIOS[i].get("weight", 1) for i in ids])[0]
         sid = assigned[call_id]
     sc = SCENARIOS[sid]
     if str(body.get("full") or request.args.get("full") or "") in ("1", "true"):
@@ -84,6 +96,8 @@ def assign():
     return jsonify({
         "call_id": call_id,
         "scenario_id": sid,
+        "use_case": sc.get("use_case", ""),
+        "subcase": sc.get("subcase", ""),
         "opening_line": sc["opening_line"],
         "brief": sc.get("brief", ""),
         "my_details": details,
@@ -92,9 +106,11 @@ def assign():
 
 @app.post("/scenario/reset")
 def reset():
+    global _next
     with _lock:
         assigned.clear()
-    return {"status": "cleared"}
+        _next = 0
+    return {"status": "cleared", "next": ROTATION[0] if ROTATION else None}
 
 
 if __name__ == "__main__":

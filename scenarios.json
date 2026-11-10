@@ -1,5 +1,5 @@
 {
-  "_readme": "Each scenario is merged on top of 'defaults' (scenario values win). To add a scenario, copy one entry, give it a new id, and edit the fields. The agent prompt never needs to change. 'weight' sets how often a scenario is picked (default 1).",
+  "_readme": "Each scenario is merged on top of 'defaults' (scenario values win). To add a scenario, copy one entry, give it a new id, and edit the fields. The agent prompt never needs to change. 'weight' sets how often a scenario is picked (default 1). 'rotation' is the order calls are served in (each call gets the next one); remove it to pick at random by weight.",
   "defaults": {
     "caller": {
       "name": "Aiko Ookimura (surname spelled O-O-K-I-M-U-R-A)",
@@ -38,7 +38,7 @@
   },
   "scenarios": {
     "IN-01a": {
-      "title": "Doesn't know how to register",
+      "title": "Doesn't know how to register (came from QR code)",
       "opening_line": "I want to register as a member, but I don't know how.",
       "situation": "You scanned the QR code on the notice letter and are on the top page. You don't know what to do next.",
       "current_screen": "Top page",
@@ -48,10 +48,12 @@
       "correct_fix": "Any reasonable registration step the operator gives works first time. Follow each step and describe the next screen until 'Registration complete.'",
       "after_fix": "Describe the next screen in the list each time.",
       "brief": "FIRST THING YOU SAY (exactly): \"I want to register as a member, but I don't know how.\"\n\nWHERE YOU ARE: You scanned the QR code on the notice letter. You are on the top page with a \"New member registration\" button. You have NOT typed anything yet.\n\nNOTHING IS WRONG. There is no secret. If asked about errors, hyphens or what you entered, say: \"I haven't entered anything yet. I'm on the first page.\"\n\nEVERY STEP WORKS FIRST TIME. After each step, say the next screen:\n- After \"New member registration\": \"Now I see boxes for my shareholder number and postal code.\"\n- After entering those and Next: \"It went through. Now I see boxes for my email address, phone number and a password.\"\n- After entering those and Next: \"Now there's a confirmation screen with a Register button.\"\n- After Register: \"It says Registration complete.\"\nThen wait for the operator to close the call.",
-      "weight": 2
+      "weight": 2,
+      "use_case": "①",
+      "subcase": "①-1"
     },
     "IN-01b": {
-      "title": "Postal code typed with a hyphen",
+      "title": "Postal code entered with a hyphen",
       "opening_line": "I entered my shareholder number and postal code, but I can't proceed.",
       "situation": "You entered your shareholder number and postal code on Screen 1 and pressed Next. Nothing happens.",
       "current_screen": "Screen 1",
@@ -71,10 +73,12 @@
       "correct_fix": "Type the postal code without the hyphen (3300834).",
       "after_fix": "It went through. Now I see boxes for my email address, phone number and a password.",
       "brief": "FIRST THING YOU SAY (exactly): \"I entered my shareholder number and postal code, but I can't proceed.\"\n\nWHERE YOU ARE: The screen with \"Shareholder number\" and \"Postal code\". You pressed Next and nothing happens. No error message.\n\nTHE SECRET: you typed the POSTAL CODE with a hyphen (330-0834).\n\nANSWERS:\n- Error message? -> \"No, nothing. It just stays on the same screen.\"\n- Shareholder number? -> \"Just the numbers, no hyphens.\"\n- Postal code / hyphen in the postal code? -> REVEAL: \"Oh, I typed it with a hyphen. 3-3-0, hyphen, 0-8-3-4.\"\n- Moved / registered address? -> \"No, I haven't moved. It's the address on the letter.\"\n\nBEFORE YOU REVEAL: anything the operator asks you to try -> \"It still won't go to the next screen.\"\nAFTER YOU REVEAL: the operator's next instruction (remove the hyphen, re-enter it, try again, anything) WORKS -> \"It went through. Now I see boxes for my email address, phone number and a password.\"\n\nAFTER THAT, EVERYTHING WORKS. Each time the operator gives a step, it works:\n- Email, phone and password screen -> after Next: \"Now there's a confirmation screen with a Register button.\"\n- Confirmation screen -> after Register: \"It says Registration complete.\"\nThen wait for the operator to close the call.",
-      "weight": 1
+      "weight": 1,
+      "use_case": "②",
+      "subcase": "②-1"
     },
     "IN-01c": {
-      "title": "Moved address",
+      "title": "Moved; postal code differs from registered address",
       "opening_line": "I entered my shareholder number and postal code, but I can't proceed.",
       "situation": "You entered your shareholder number and a postal code on Screen 1 and pressed Next. Nothing happens.",
       "current_screen": "Screen 1",
@@ -103,10 +107,12 @@
       "correct_fix": "Enter the postal code of the registered (old) address on the notice letter: 3300834.",
       "after_fix": "It went through. Now I see boxes for my email address, phone number and a password.",
       "brief": "FIRST THING YOU SAY (exactly): \"I entered my shareholder number and postal code, but I can't proceed.\"\n\nWHERE YOU ARE: The screen with \"Shareholder number\" and \"Postal code\". You pressed Next and nothing happens. No error message.\n\nTHE SECRET: you MOVED. You typed the postal code of your NEW address (1600023). The registered address is the OLD one on the notice letter (330-0834).\n\nANSWERS:\n- Error message? -> \"No, nothing. It just stays on the same screen.\"\n- Shareholder number? -> \"Just the numbers, no hyphens.\"\n- Postal code / hyphen? -> \"Just the numbers, no hyphen.\" (do NOT mention moving)\n- Which postal code did you enter? -> \"1-6-0, 0-0-2-3.\"\n- Moved / address changed / is it the postal code on the letter / registered address? -> REVEAL: \"I've moved, but is it okay to register with my old address?\"\n\nBEFORE YOU REVEAL: anything the operator asks you to try (including removing hyphens) -> \"It still won't go to the next screen.\"\nAFTER YOU REVEAL: the operator's next instruction (use the old address, the letter's postal code, try again, anything) WORKS -> \"It went through. Now I see boxes for my email address, phone number and a password.\"\n\nAFTER THAT, EVERYTHING WORKS. Each time the operator gives a step, it works:\n- Email, phone and password screen -> after Next: \"Now there's a confirmation screen with a Register button.\"\n- Confirmation screen -> after Register: \"It says Registration complete.\"\nThen wait for the operator to close the call.",
-      "weight": 1
+      "weight": 1,
+      "use_case": "②",
+      "subcase": "②-2"
     },
     "IN-01d": {
-      "title": "Phone number typed with hyphens",
+      "title": "Phone number entered with hyphens",
       "opening_line": "I entered my email address, phone number and so on, but I can't go any further.",
       "situation": "Screen 1 worked. On Screen 2 you entered your email address, phone number and a password, and pressed Next. Nothing happens.",
       "current_screen": "Screen 2",
@@ -121,7 +127,17 @@
       "correct_fix": "Type the phone number as numbers only (09012345678).",
       "after_fix": "It went through. Now I see a confirmation screen with a Register button.",
       "brief": "FIRST THING YOU SAY (exactly): \"I entered my email address, phone number and so on, but I can't go any further.\"\n\nWHERE YOU ARE: Shareholder number and postal code already went through fine. Now you are on the screen with email, phone number and password. You pressed Next and nothing happens. No error message.\n\nTHE SECRET: you typed the PHONE NUMBER with hyphens (090-1234-5678).\n\nANSWERS:\n- Error message? -> \"No, nothing. It just stays on the same screen.\"\n- Shareholder number or postal code? -> \"Those went through fine. I typed them as numbers only.\"\n- Email address? -> \"a, dot, k, dot, o-o-k-i-m-u, at gmail dot com.\"\n- Phone number / its format / hyphens in the phone number? -> REVEAL: \"Oh, I put hyphens in the phone number. 0-9-0, hyphen, 1-2-3-4, hyphen, 5-6-7-8.\"\n\nBEFORE YOU REVEAL: anything the operator asks you to try -> \"It still won't go to the next screen.\"\nAFTER YOU REVEAL: the operator's next instruction (remove the hyphens, re-enter it, try again, anything) WORKS -> \"It went through. Now there's a confirmation screen with a Register button.\"\nAfter Register: \"It says Registration complete.\"\nThen wait for the operator to close the call.",
-      "weight": 2
+      "weight": 2,
+      "use_case": "③",
+      "subcase": "③-1"
     }
-  }
+  },
+  "rotation": [
+    "IN-01a",
+    "IN-01b",
+    "IN-01d",
+    "IN-01a",
+    "IN-01c",
+    "IN-01d"
+  ]
 }
